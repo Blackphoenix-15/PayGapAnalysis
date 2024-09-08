@@ -1,0 +1,47 @@
+#Future Aspects
+Frontend Development
+We are looking for contributors who can help build the frontend of the tool to enhance its user experience and interactivity. Key aspects to be developed include:
+
+#Dashboard:
+
+Create an intuitive interface to display key metrics and visualizations.
+Implement interactive charts and graphs to represent pay disparities and insights.
+User Input Forms:
+
+Develop forms for HR personnel to input and validate data such as salary details and gender metrics.
+Report Generation:
+
+Build features for generating and downloading detailed reports with recommendations.
+Data Visualization:
+
+Design dynamic visualizations using graphs, heat maps, and other tools to explore data effectively.
+User Authentication:
+
+Implement secure login and user management with different access levels.
+Feedback Mechanism:
+
+Provide a way for users to submit feedback or request additional features.
+Requirements for Frontend
+We are seeking contributors with skills and experience in the following areas:
+
+Frameworks/Libraries:
+
+Experience with React, Angular, or Vue.js.
+Proficiency in D3.js or Chart.js for data visualization.
+Design:
+
+Ability to create user-friendly UI/UX designs using tools like Figma or Adobe XD.
+Integration:
+
+Experience with connecting frontend components to backend APIs.
+Understanding of data flow and interactive features.
+Development Environment:
+
+Familiarity with Node.js, npm, and build tools.
+Experience with version control using Git.
+Testing:
+
+Skills in frontend testing using tools like Jest or Cypress.
+Ability to conduct user testing and refine based on feedback.
+How to Contribute
+If you are interested in contributing to the frontend development, please reach out or submit a pull request. We are excited to collaborate with passionate individuals who can bring a user-interactive and engaging frontend to life!
