@@ -1,0 +1,175 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import mean_squared_error
+
+
+data = {
+    'EmployeeID': np.arange(1, 101),
+    'Gender': np.random.choice(['Male', 'Female'], 100),
+    'Tenure': np.random.randint(1, 20, 100),
+    'Position': np.random.choice(['Junior', 'Mid', 'Senior', 'Manager'], 100),
+    'Department': np.random.choice(['Engineering', 'HR', 'Sales', 'Marketing'], 100),
+    'Salary': np.random.randint(30000, 120000, 100),
+    'PerformanceScore': np.random.randint(1, 5, 100)
+}
+
+df = pd.DataFrame(data)
+df.head()
+
+
+
+# Encode categorical variables
+encoder = LabelEncoder()
+df['Gender'] = encoder.fit_transform(df['Gender'])  # Male = 1, Female = 0
+df['Position'] = encoder.fit_transform(df['Position'])
+df['Department'] = encoder.fit_transform(df['Department'])
+
+# Train-test split
+X = df[['Gender', 'Tenure', 'Position', 'Department', 'PerformanceScore']]
+y = df['Salary']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+
+mse = mean_squared_error(y_test, y_pred)
+print(f"Mean Squared Error: {mse}")
+
+
+# Gender pay gap analysis
+avg_salary_male = df[df['Gender'] == 1]['Salary'].mean()
+avg_salary_female = df[df['Gender'] == 0]['Salary'].mean()
+pay_gap = avg_salary_male - avg_salary_female
+
+print(f"Average Salary for Men: {avg_salary_male}")
+print(f"Average Salary for Women: {avg_salary_female}")
+print(f"Gender Pay Gap: {pay_gap}")
+
+
+# Tenure and salary correlation
+sns.scatterplot(x='Tenure', y='Salary', hue='Gender', data=df)
+plt.title("Tenure vs Salary by Gender")
+plt.show()
+
+# Feedback generation based on the analysis
+if pay_gap > 0:
+    print("Recommendation: Consider reviewing salary policies to ensure equal pay for equal work.")
+    
+if df[df['Gender'] == 0]['Tenure'].mean() > df[df['Gender'] == 1]['Tenure'].mean():
+    print("Recommendation: Consider retention policies for female employees with longer tenure.")
+
+
+# Average salary by department and gender
+salary_by_dept = df.groupby(['Department', 'Gender'])['Salary'].mean().unstack()
+print(salary_by_dept)
+
+# Feedback by department
+for dept in df['Department'].unique():
+    dept_gap = salary_by_dept.loc[dept, 1] - salary_by_dept.loc[dept, 0]
+    if dept_gap > 0:
+        print(f"Department {dept}: Suggest addressing salary differences between genders.")
+
+
+# Define seniority based on position (assuming Position encoded as 0: Junior, 1: Mid, 2: Senior, 3: Manager)
+def seniority_level(position):
+    if position == 0:
+        return 'Junior'
+    elif position == 1:
+        return 'Mid-Level'
+    elif position == 2:
+        return 'Senior'
+    else:
+        return 'Manager'
+
+df['Seniority'] = df['Position'].apply(seniority_level)
+
+# Define promotion based on tenure and position (this is a mockup condition, modify as per actual data)
+df['Promotion'] = np.where(
+    ((df['Position'] == 0) & (df['Tenure'] > 3)) | 
+    ((df['Position'] == 1) & (df['Tenure'] > 5)) | 
+    ((df['Position'] == 2) & (df['Tenure'] > 8)), 
+    1, 0)
+
+df.head()
+
+
+# Analyze average salary by gender and seniority
+salary_by_seniority = df.groupby(['Seniority', 'Gender'])['Salary'].mean().unstack()
+print("Average salary by seniority and gender:\n", salary_by_seniority)
+
+# Seniority-based feedback
+for seniority in df['Seniority'].unique():
+    seniority_gap = salary_by_seniority.loc[seniority, 1] - salary_by_seniority.loc[seniority, 0]
+    print(f"Seniority Level {seniority}: Gender Pay Gap = {seniority_gap}")
+    if seniority_gap > 0:
+        print(f"Recommendation: Review salary discrepancies for {seniority} level employees to ensure equity.")
+
+
+# Analyze average salary based on promotion status and gender
+salary_by_promotion = df.groupby(['Promotion', 'Gender'])['Salary'].mean().unstack()
+print("Average salary by promotion status and gender:\n", salary_by_promotion)
+
+# Promotion-based feedback
+for promotion_status in df['Promotion'].unique():
+    promotion_gap = salary_by_promotion.loc[promotion_status, 1] - salary_by_promotion.loc[promotion_status, 0]
+    if promotion_status == 1:
+        status = 'Promoted'
+    else:
+        status = 'Not Promoted'
+    
+    print(f"Promotion Status: {status}: Gender Pay Gap = {promotion_gap}")
+    if promotion_gap > 0:
+        print(f"Recommendation: Review promotion-related pay adjustments to ensure equal salary increments across genders.")
+
+
+# Average salary by tenure and gender
+sns.lmplot(x='Tenure', y='Salary', hue='Gender', data=df)
+plt.title("Tenure vs Salary by Gender")
+plt.show()
+
+# Correlation analysis between tenure and salary based on gender
+correlation_male = df[df['Gender'] == 1][['Tenure', 'Salary']].corr().iloc[0, 1]
+correlation_female = df[df['Gender'] == 0][['Tenure', 'Salary']].corr().iloc[0, 1]
+
+print(f"Correlation between Tenure and Salary for Males: {correlation_male}")
+print(f"Correlation between Tenure and Salary for Females: {correlation_female}")
+
+if correlation_female > correlation_male:
+    print("Recommendation: Female employees with longer tenure may still face pay disparity; suggest reviewing salary structure based on experience.")
+
+
+# Summary Feedback Generation
+def generate_feedback():
+    # Pay Gap Feedback
+    if pay_gap > 0:
+        print("Feedback: A significant gender pay gap exists. Consider implementing fair pay policies.")
+    else:
+        print("Feedback: No major gender pay gap identified. Continue monitoring pay equity.")
+
+    # Seniority Feedback
+    for seniority in df['Seniority'].unique():
+        seniority_gap = salary_by_seniority.loc[seniority, 1] - salary_by_seniority.loc[seniority, 0]
+        if seniority_gap > 0:
+            print(f"Feedback: Pay gap detected for {seniority} employees. Review salary structure to ensure gender pay equity.")
+    
+    # Promotion Feedback
+    for promotion_status in df['Promotion'].unique():
+        promotion_gap = salary_by_promotion.loc[promotion_status, 1] - salary_by_promotion.loc[promotion_status, 0]
+        if promotion_gap > 0:
+            print(f"Feedback: Gender pay gap persists among {status} employees. Suggest reviewing promotion-based pay adjustments.")
+    
+    # Tenure Feedback
+    if correlation_female > correlation_male:
+        print("Feedback: Pay correlation with tenure is stronger for female employees, yet disparity exists. Consider tenure-based salary increments for gender equity.")
+
+generate_feedback()
